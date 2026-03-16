@@ -1,0 +1,50 @@
+services:
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../frontend/Dockerfile
+    container_name: dashboard_frontend
+    ports:
+      - "8050:8050"
+    environment:
+      - WEBSOCKET_URL=ws://127.0.0.1:8765
+    restart: always
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../backend/Dockerfile
+    container_name: dashboard_backend
+    ports:
+      - "8765:8765"
+      - "8888:8888"
+    restart: always
+
+
+  gateway:
+    build:
+      context: ../gateway
+      dockerfile: ../gateway/Dockerfile
+    container_name: dashboard_gateway
+    ports:
+      - "9999:9999/udp"
+    environment:
+      - BACKEND_ADDR=backend
+      - BACKEND_PORT=8888
+    restart: always
+    
+
+  client:
+    build:
+      context: ../client
+      dockerfile: ../client/Dockerfile
+    container_name: dashboard_client
+    environment:
+      - GATEWAY_ADDR=gateway
+      - GATEWAY_PORT=9999
+    restart: always
+
+
+networks:
+  default:
+    name: dashboard_network
